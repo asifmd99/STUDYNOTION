@@ -62,7 +62,7 @@ function CourseDetails() {
     setIsActive(
       !isActive.includes(id)
         ? isActive.concat([id])
-        : isActive.filter((e) => e != id)
+        : isActive.filter((e) => e !== id)
     )
   }
 
@@ -103,6 +103,7 @@ function CourseDetails() {
 
   const handleBuyCourse = () => {
     if (token) {
+      console.log(token)
       BuyCourse(token, [courseId], user, navigate, dispatch)
       return
     }

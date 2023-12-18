@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { AiOutlineMenu, AiOutlineShoppingCart } from "react-icons/ai"
 import { BsChevronDown } from "react-icons/bs"
 import { useSelector } from "react-redux"
@@ -10,6 +10,7 @@ import { apiConnector } from "../../services/apiConnector"
 import { categories } from "../../services/apis"
 import { ACCOUNT_TYPE } from "../../utils/constants"
 import ProfileDropdown from "../core/Auth/ProfileDropdown"
+import useOnClickOutside from "../../hooks/useOnClickOutside"
 
 // const subLinks = [
 //   {
@@ -39,6 +40,14 @@ function Navbar() {
   const [subLinks, setSubLinks] = useState([])
   const [loading, setLoading] = useState(false)
 
+  const [navVisible, setNavVisible] = useState(false);
+  const ref =useRef(null);
+   useOnClickOutside(ref,()=>setNavVisible(false))
+  const toggleNav = () => {
+    //console.log("1,",navVisible)
+    setNavVisible(!navVisible);
+   // console.log("2,",navVisible)
+}
   useEffect(() => {
     ;(async () => {
       setLoading(true)
@@ -64,14 +73,18 @@ function Navbar() {
         location.pathname !== "/" ? "bg-richblack-800" : ""
       } transition-all duration-200`}
     >
-      <div className="flex w-11/12 max-w-maxContent items-center justify-between">
+      <div className={`${navVisible ? 'w-11/12  ' : ' w-11/12'} flex  max-w-maxContent items-center justify-between relative`}>
         {/* Logo */}
-        <Link to="/">
+        <Link to="/" >
           <img src={logo} alt="Logo" width={160} height={32} loading="lazy" />
         </Link>
         {/* Navigation links */}
-        <nav className="hidden md:block">
-          <ul className="flex gap-x-6 text-richblack-25">
+        <nav className={`${navVisible? '  mt-1 right-0 top-11 z-40 absolute h-[100vh] w-[40%]  text-xl bg-richblack-800  rounded-md': 'hidden' } 
+        md:block  `      }
+        ref={ref}
+        onClick={(e) => e.stopPropagation()}
+        >
+          <ul className={   `  ${ navVisible ? ' flex flex-col gap-y-10 items-center justify-center pt-5   ': 'flex gap-x-6' }   text-richblack-25 `}>
             {NavbarLinks.map((link, index) => (
               <li key={index}>
                 {link.title === "Catalog" ? (
@@ -104,7 +117,8 @@ function Navbar() {
                                   className="rounded-lg bg-transparent py-4 pl-4 hover:bg-richblack-50"
                                   key={i}
                                 >
-                                  <p>{subLink.name}</p>
+                                  <p onClick={() =>  setNavVisible(false)}
+                                    >{subLink.name}</p>
                                 </Link>
                               ))}
                           </>
@@ -121,7 +135,9 @@ function Navbar() {
                         matchRoute(link?.path)
                           ? "text-yellow-25"
                           : "text-richblack-25"
-                      }`}
+                      } ${navVisible ? 'p-5' : '' }  `}
+                      onClick={() => setNavVisible(false)}
+                      
                     >
                       {link.title}
                     </p>
@@ -130,40 +146,63 @@ function Navbar() {
               </li>
             ))}
           </ul>
+
+
+       
         </nav>
         {/* Login / Signup / Dashboard */}
-        <div className="hidden items-center gap-x-4 md:flex">
+        <div className="   items-center gap-x-4 flex  "> 
           {user && user?.accountType !== ACCOUNT_TYPE.INSTRUCTOR && (
             <Link to="/dashboard/cart" className="relative">
-              <AiOutlineShoppingCart className="text-2xl text-richblack-100" />
+              <AiOutlineShoppingCart className="text-2xl text-richblack-100" onClick={() => setNavVisible(false)} />
               {totalItems > 0 && (
-                <span className="absolute -bottom-2 -right-2 grid h-5 w-5 place-items-center overflow-hidden rounded-full bg-richblack-600 text-center text-xs font-bold text-yellow-100">
+                <span className="absolute -bottom-2 -right-2 grid h-5 w-5 place-items-center overflow-hidden rounded-full bg-richblack-600 text-center text-xs font-bold text-yellow-100" >
                   {totalItems}
                 </span>
+               
               )}
             </Link>
           )}
           {token === null && (
             <Link to="/login">
-              <button className="rounded-[8px] border border-richblack-700 bg-richblack-800 px-[12px] py-[8px] text-richblack-100">
+              <button className="rounded-[8px] border border-richblack-700 bg-richblack-800 px-[12px] py-[8px] text-richblack-100" onClick={() => setNavVisible(false)}>
                 Log in
               </button>
             </Link>
           )}
           {token === null && (
             <Link to="/signup">
-              <button className="rounded-[8px] border border-richblack-700 bg-richblack-800 px-[12px] py-[8px] text-richblack-100">
+              <button className="rounded-[8px] border border-richblack-700 bg-richblack-800 px-[12px] py-[8px] text-richblack-100"
+              onClick={() => setNavVisible(false)}
+              >
                 Sign up
               </button>
             </Link>
           )}
-          {token !== null && <ProfileDropdown />}
-        </div>
-        <button className="mr-4 md:hidden">
+          {token !== null && <ProfileDropdown  />}
+          <button className="mr-4 md:hidden" onClick={toggleNav}>
           <AiOutlineMenu fontSize={24} fill="#AFB2BF" />
-        </button>
+
+        </button> 
+        </div>
+      
+
+       
       </div>
-    </div>
+  
+
+                    {/* Button to toggle navigation */}
+                     
+               
+
+                    {/* nav links */}
+                    
+
+                    {/* login / signup / dashboard  */}
+                 
+                </div>
+            
+    
   )
 }
 

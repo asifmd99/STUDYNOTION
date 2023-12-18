@@ -39,31 +39,30 @@ export async function BuyCourse(
   try {
     // Loading the script of Razorpay SDK
     const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js")
-
+    console.log(1);
     if (!res) {
       toast.error(
         "Razorpay SDK failed to load. Check your Internet Connection."
       )
       return
     }
-
+    console.log(2);
     // Initiating the Order in Backend
     const orderResponse = await apiConnector(
       "POST",
       COURSE_PAYMENT_API,
-      {
-        courses,
-      },
+      {courses},
+      
       {
         Authorization: `Bearer ${token}`,
       }
     )
-
+    console.log(3);
     if (!orderResponse.data.success) {
       throw new Error(orderResponse.data.message)
     }
     console.log("PAYMENT RESPONSE FROM BACKEND............", orderResponse.data)
-
+    console.log(4);
     // Opening the Razorpay SDK
     const options = {
       key: process.env.RAZORPAY_KEY,

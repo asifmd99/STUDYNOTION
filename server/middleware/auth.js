@@ -9,29 +9,33 @@ dotenv.config();
 exports.auth = async (req, res, next) => {
 	try {
 		// Extracting JWT from request cookies, body or header
+		//console.log("--------------------------------auth1------------------------");
 		const token =
-			req.cookies.token ||
-			req.body.token ||
-			req.header("Authorization").replace("Bearer ", "");
-
+			  req.cookies.token||
+			  req.body.token||
+			req.header("Authorization").replace("Bearer ","");
+                        
 		// If JWT is missing, return 401 Unauthorized response
 		if (!token) {
 			return res.status(401).json({ success: false, message: `Token Missing` });
 		}
-
+		
 		try {
+			console.log(token);
+			//console.log("--------------------------------auth2- yoken =----------------------",token);
 			// Verifying the JWT using the secret key stored in environment variables
-			const decode = await jwt.verify(token, process.env.JWT_SECRET);
+			const decode =await jwt.verify(token, process.env.JWT_SECRET);
 			console.log(decode);
 			// Storing the decoded JWT payload in the request object for further use
 			req.user = decode;
 		} catch (error) {
 			// If JWT verification fails, return 401 Unauthorized response
+			//console.log("--------------------------------auth3--- token is invalid---------------------,");
 			return res
 				.status(401)
 				.json({ success: false, message: "token is invalid" });
 		}
-
+	//	console.log("--------------------------------auth4------------------------");
 		// If JWT is valid, move on to the next middleware or request handler
 		next();
 	} catch (error) {

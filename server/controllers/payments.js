@@ -1,4 +1,5 @@
 const { instance } = require("../config/razorpay")
+const Razorpay = require("razorpay");
 const Course = require("../models/Course")
 const crypto = require("crypto")
 const User = require("../models/User")
@@ -12,12 +13,13 @@ const CourseProgress = require("../models/CourseProgress")
 
 // Capture the payment and initiate the Razorpay order
 exports.capturePayment = async (req, res) => {
+ // console.log("--------------------------------1------------------------");
   const { courses } = req.body
   const userId = req.user.id
-  if (courses.length === 0) {
+  if (courses?.length === 0) {
     return res.json({ success: false, message: "Please Provide Course ID" })
   }
-
+  
   let total_amount = 0
 
   for (const course_id of courses) {
@@ -33,6 +35,7 @@ exports.capturePayment = async (req, res) => {
           .json({ success: false, message: "Could not find the Course" })
       }
 
+   //   console.log("--------------------------------2------------------------");
       // Check if the user is already enrolled in the course
       const uid = new mongoose.Types.ObjectId(userId)
       if (course.studentsEnroled.includes(uid)) {
@@ -48,7 +51,7 @@ exports.capturePayment = async (req, res) => {
       return res.status(500).json({ success: false, message: error.message })
     }
   }
-
+ // console.log("--------------------------------3 ------------------------",total_amount);
   const options = {
     amount: total_amount * 100,
     currency: "INR",
@@ -57,6 +60,15 @@ exports.capturePayment = async (req, res) => {
 
   try {
     // Initiate the payment using Razorpay
+   // console.log("--------------------------------4------------------------");
+//     var instance = new Razorpay({ key_id: 'rzp_test_WWLA7gJ42UIoX2', key_secret: 'TDVDkFSrI3mBA3zXPDuveJWW' })
+
+//     const paymentResponse=await instance.orders.create({
+//   amount: 5000,
+//   currency: "INR",
+//   receipt: "receipt#1",
+  
+// })
     const paymentResponse = await instance.orders.create(options)
     console.log(paymentResponse)
     res.json({
@@ -64,10 +76,10 @@ exports.capturePayment = async (req, res) => {
       data: paymentResponse,
     })
   } catch (error) {
-    console.log(error)
+  //  console.log("--------------------------------5------------------------",error);
     res
       .status(500)
-      .json({ success: false, message: "Could not initiate order." })
+      .json({ success: false, message: "Could not initiate order ." })
   }
 }
 

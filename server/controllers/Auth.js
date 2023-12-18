@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt")
+
 const User = require("../models/User")
 const OTP = require("../models/OTP")
 const jwt = require("jsonwebtoken")
@@ -141,6 +142,7 @@ exports.login = async (req, res) => {
 
     // Generate JWT token and Compare Password
     if (await bcrypt.compare(password, user.password)) {
+     // console.log(process.env.JWT_SECRET)
       const token = jwt.sign(
         { email: user.email, id: user._id, role: user.role },
         process.env.JWT_SECRET,
@@ -151,13 +153,14 @@ exports.login = async (req, res) => {
 
       // Save token to user document in database
       user.token = token
+    //  console.log("--------",user.token)
       user.password = undefined
       // Set cookie for token and return success response
       const options = {
         expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
         httpOnly: true,
       }
-      res.cookie("token", token, options).status(200).json({
+      res.cookie("token",token,options).status(200).json({
         success: true,
         token,
         user,
@@ -194,7 +197,7 @@ exports.sendotp = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: `User is Already Registered`,
-    
+     
       })
     }
 
@@ -203,7 +206,7 @@ exports.sendotp = async (req, res) => {
       lowerCaseAlphabets: false,
       specialChars: false,
     })
-    console.log("otp " ,otp);
+    
     const result = await OTP.findOne({ otp: otp })
     console.log("Result is Generate OTP Func")
     console.log("OTP", otp)
